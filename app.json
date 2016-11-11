@@ -1,0 +1,6 @@
+{
+  "name": "The Things Network - Xively Connector",
+  "description": "A app using Express 4",
+  "repository": "https://github.com/embee8/ttn-xively-connector",
+  "keywords": ["node", "ttn", "thethingsnetwork", "iot", "xively"]
+}
