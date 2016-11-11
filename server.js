@@ -1,34 +1,71 @@
 'use strict';
 
 var ttn = require('ttn');
-var paho = require('paho-mqtt')
+var mqtt = require('mqtt')
+const fs = require('fs');
+
+// Connection parameters
+var ttnAppEUI;
+var ttnAccessKey;
+var xivelyDeviceId;
+var xivelyPassword;
+var xivelyAccountId;
+
+// Reading connection parameters
+try
+{
+  console.log("Reading connection parameters...");
+
+  var envVars = JSON.parse(fs.readFileSync('config.json', 'utf8'));
+
+  ttnAppEUI = envVars.ttnAppEUI;
+  ttnAccessKey = envVars.ttnAccessKey;
+  xivelyDeviceId = envVars.xivelyDeviceId;
+  xivelyPassword = envVars.xivelyPassword;
+  xivelyAccountId = envVars.xivelyAccountId;
+}
+catch (e)
+{
+    if(e.code === 'ENOENT')
+    {
+        console.log("Local config file not found, reading environment variables.");
+        
+        ttnAppEUI = process.env.ttnAppEUI;
+        ttnAccessKey = process.env.ttnAccessKey;
+        xivelyDeviceId = process.env.xivelyDeviceId;
+        xivelyPassword = process.env.xivelyPassword;
+        xivelyAccountId = process.env.xivelyAccountId;
+    }
+    else
+        console.log("Error code: " + e.code);
+}
 
 // The Things Network connection
-var appEUI = process.env.ttnAppEUI;
-var accessKey = process.env.ttnAccessKey
-var ttnClient = new ttn.Client('staging.thethingsnetwork.org', appEUI, accessKey);
+console.log("Trying to connect to TTN...");
+var ttnClient = new ttn.Client('staging.thethingsnetwork.org', ttnAppEUI, ttnAccessKey);
 
 // Xively connection
-var xivelyDeviceId = process.env.xivelyDeviceId;
-var xivelyPassword = proces.env.xivelyPassword;
+console.log("Trying to connect to Xively...");
 
-var xivelyClient = new Paho.MQTT.Client("broker.xively.com", 443, "");
-xivelyClient.onConnectionLost = onConnectionLost;
-xivelyClient.onMessageArrived = onMessageArrived;
-xivelyClient.connect(
-{
-    userName: xivelyDeviceId,
-    password: xivelyPassword,
-    useSSL: true,
-    onSuccess: onConnect
-});
+var xivelyOptions = {
+  port: 443,
+  clientId: xivelyDeviceId,
+  username: xivelyDeviceId,
+  password: xivelyPassword,
+
+  //protocolId: 'MQIsdp',
+  //protocolVersion: 3
+};
+
+var xivelyClient = mqtt.connect('tls://broker.xively.com', xivelyOptions)
+
 
 /*
  * TTN callbacks
  */
 
 ttnClient.on('connect', function () {
-	console.log('[DEBUG]', 'Connected');
+	console.log('Connected to TTN');
 });
 
 ttnClient.on('error', function (err) {
@@ -45,13 +82,33 @@ ttnClient.on('uplink', function (msg) {
 
 ttnClient.on('uplink', function (msg) {
 
+  console.log(msg);
+
+  xivelyClient.publish('xi/blue/v1/' + xivelyAccountId + '/d/' + xivelyDeviceId + '/up', JSON.stringify(msg));
+
+  
+  if (msg.fields.button != null) {
+    xivelyClient.publish('xi/blue/v1/' + xivelyAccountId + '/d/' + xivelyDeviceId + '/button', msg.fields.button.toString());
+  }
+
+  if (msg.fields.humidity != null) {
+    xivelyClient.publish('xi/blue/v1/' + xivelyAccountId + '/d/' + xivelyDeviceId + '/humidity', msg.fields.humidity.toString());
+  }
+
+  if (msg.fields.light != null) {
+    xivelyClient.publish('xi/blue/v1/' + xivelyAccountId + '/d/' + xivelyDeviceId + '/light', msg.fields.light.toString());
+  }
+
+  if (msg.fields.temperature != null) {
+    xivelyClient.publish('xi/blue/v1/' + xivelyAccountId + '/d/' + xivelyDeviceId + '/temperature', msg.fields.temperature.toString());
+  }
 	// respond to every third message
-	if (msg.counter % 3 === 0) {
+	/*if (msg.counter % 3 === 0) {
 		console.log('[DEBUG]', 'Downlink');
 
 		var payload = new Buffer('4869', 'hex');
-		client.downlink(msg.devEUI, payload);
-	}
+		//client.downlink(msg.devEUI, payload);
+	}*/
 });
 
 
@@ -60,24 +117,16 @@ ttnClient.on('uplink', function (msg) {
  * Xively callbacks
  */ 
  
-// called when the client connects
-function onConnect() {
-  // Once a connection has been made, make a subscription and send a message.
-  console.log("Connected");
-  //xivelyClient.subscribe("/World");
-  //message = new Paho.MQTT.Message("Hello");
-  //message.destinationName = "/World";
-  //xivelyClient.send(message);
-}
+/*var client  = mqtt.connect('mqtt://test.mosquitto.org')*/
  
-// called when the client loses its connection
-function onConnectionLost(responseObject) {
-  if (responseObject.errorCode !== 0) {
-    console.log("Xively client lost connection: " + responseObject.errorMessage);
-  }
-}
+xivelyClient.on('connect', function () {
+  xivelyClient.subscribe('xi/blue/v1/' + xivelyAccountId + '/d/' + xivelyDeviceId + '/light')
+  console.log("Connected to Xively");
+  //xivelyClient.publish('xi/blue/v1/' + xivelyAccountId + '/d/' + xivelyDeviceId + '/light', 'Hello mqtt')
+});
  
-// called when a message arrives
-function onMessageArrived(message) {
-  console.log("Xively client received message: " + message.payloadString);
-}
+xivelyClient.on('message', function (topic, message) {
+  // message is Buffer 
+  console.log(message.toString())
+  //xivelyClient.end()
+});
