@@ -2,5 +2,23 @@
   "name": "The Things Network - Xively Connector",
   "description": "A app using Express 4",
   "repository": "https://github.com/embee8/ttn-xively-connector",
-  "keywords": ["node", "ttn", "thethingsnetwork", "iot", "xively"]
+  "keywords": ["node", "ttn", "thethingsnetwork", "iot", "xively"],
+  "env": {
+      "ttnAppEUI": {
+          "description": "Your TTN appEUI",
+          "required": false
+      },
+      "ttnAccessKey": {
+          "description": "Your TTN access key",
+          "required": false
+      },
+      "xivelyUsername": {
+          "description": "The username / device ID of the paired Xively device",
+          "required": false
+      },
+      "xivelyPassword": {
+          "description": "The password of the paired Xively device",
+          "required": false
+      }
+  }
 }
