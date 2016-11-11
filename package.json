@@ -1,0 +1,24 @@
+{
+  "name": "ttn-xively-connector",
+  "version": "1.0.0",
+  "description": "A Node.js application that connects The Things Network and Xively.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/embee8/ttn-xively-connector.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/embee8/ttn-xively-connector/issues"
+  },
+  "homepage": "https://github.com/embee8/ttn-xively-connector#readme",
+  "dependencies": {
+    "paho-mqtt": "^1.0.3",
+    "ttn": "^1.3.2"
+  }
+}
