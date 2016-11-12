@@ -57,7 +57,12 @@ var xivelyOptions = {
   //protocolVersion: 3
 };
 
-var xivelyClient = mqtt.connect('tls://broker.xively.com', xivelyOptions)
+try {
+  var xivelyClient = mqtt.connect('tls://broker.xively.com', xivelyOptions)
+}
+catch (e) {
+  console.log("Couldn't connecto to Xively: " + e.message);
+}
 
 
 /*
@@ -82,7 +87,7 @@ ttnClient.on('uplink', function (msg) {
 
 ttnClient.on('uplink', function (msg) {
 
-  console.log(msg);
+  console.log("TTN message received: " + msg);
 
   xivelyClient.publish('xi/blue/v1/' + xivelyAccountId + '/d/' + xivelyDeviceId + '/up', JSON.stringify(msg));
 
@@ -124,9 +129,19 @@ xivelyClient.on('connect', function () {
   console.log("Connected to Xively");
   //xivelyClient.publish('xi/blue/v1/' + xivelyAccountId + '/d/' + xivelyDeviceId + '/light', 'Hello mqtt')
 });
+
+xivelyClient.on('reconnect', function () {
+  console.log("Trying to reconnect to Xively");
+});
+
+xivelyClient.on('close', function () {
+  console.log("Lost connection to Xively");
+});
  
-xivelyClient.on('message', function (topic, message) {
-  // message is Buffer 
-  console.log(message.toString())
-  //xivelyClient.end()
+xivelyClient.on('message', function (topic, message) { 
+  console.log("Xively message received: " + message.toString())
+});
+
+xivelyClient.on('error', function (error) {
+  console.log("An error with the Xively client occured: " + error);
 });
