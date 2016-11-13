@@ -3,6 +3,7 @@
 var ttn = require('ttn');
 var mqtt = require('mqtt')
 const fs = require('fs');
+var http = require('http');
 
 // Connection parameters
 var ttnAppEUI;
@@ -10,6 +11,22 @@ var ttnAccessKey;
 var xivelyDeviceId;
 var xivelyPassword;
 var xivelyAccountId;
+
+// Get port from the environment or use 8080 locally
+var port = process.env.PORT || 8080;
+
+// Configure our HTTP server to respond with Hello World to all requests.
+var server = http.createServer(function (request, response) {
+  response.writeHead(200, {"Content-Type": "text/plain"});
+  response.end("Hello World\n");
+});
+
+// Listen to requests
+server.listen(port);
+
+// Put a friendly message into the log
+console.log("Listening at port " + port);
+
 
 // Reading connection parameters
 try
@@ -122,7 +139,7 @@ ttnClient.on('uplink', function (msg) {
  * Xively callbacks
  */ 
  
-/*var client  = mqtt.connect('mqtt://test.mosquitto.org')*/
+// Details see: https://github.com/mqttjs/MQTT.js
  
 xivelyClient.on('connect', function () {
   xivelyClient.subscribe('xi/blue/v1/' + xivelyAccountId + '/d/' + xivelyDeviceId + '/light')
