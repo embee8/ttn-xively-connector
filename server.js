@@ -8,6 +8,8 @@ var http = require('http');
 // Connection parameters
 var ttnAppEUI;
 var ttnAccessKey;
+
+var xivelyBrokerUrl;
 var xivelyDeviceId;
 var xivelyPassword;
 var xivelyAccountId;
@@ -37,6 +39,8 @@ try
 
   ttnAppEUI = envVars.ttnAppEUI;
   ttnAccessKey = envVars.ttnAccessKey;
+
+  xivelyBrokerUrl = envVars.xivelyBrokerUrl;
   xivelyDeviceId = envVars.xivelyDeviceId;
   xivelyPassword = envVars.xivelyPassword;
   xivelyAccountId = envVars.xivelyAccountId;
@@ -49,6 +53,8 @@ catch (e)
         
         ttnAppEUI = process.env.ttnAppEUI;
         ttnAccessKey = process.env.ttnAccessKey;
+
+        xivelyBrokerUrl = process.env.xivelyBrokerUrl;
         xivelyDeviceId = process.env.xivelyDeviceId;
         xivelyPassword = process.env.xivelyPassword;
         xivelyAccountId = process.env.xivelyAccountId;
@@ -75,7 +81,7 @@ var xivelyOptions = {
 };
 
 try {
-  var xivelyClient = mqtt.connect('tls://broker.xively.com', xivelyOptions)
+  var xivelyClient = mqtt.connect('tls://' + xivelyBrokerUrl, xivelyOptions)
 }
 catch (e) {
   console.log("Couldn't connecto to Xively: " + e.message);
