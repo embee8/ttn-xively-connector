@@ -13,6 +13,7 @@ var xivelyBrokerUrl;
 var xivelyDeviceId;
 var xivelyPassword;
 var xivelyAccountId;
+var xivelyDeliveryTargetDeviceId;
 
 // Get port from the environment or use 8080 locally
 var port = process.env.PORT || 8080;
@@ -44,6 +45,7 @@ try
   xivelyDeviceId = envVars.xivelyDeviceId;
   xivelyPassword = envVars.xivelyPassword;
   xivelyAccountId = envVars.xivelyAccountId;
+  xivelyDeliveryTargetDeviceId = envVars.xivelyDeliveryTargetDeviceId;
 }
 catch (e)
 {
@@ -58,6 +60,7 @@ catch (e)
         xivelyDeviceId = process.env.xivelyDeviceId;
         xivelyPassword = process.env.xivelyPassword;
         xivelyAccountId = process.env.xivelyAccountId;
+        xivelyDeliveryTargetDeviceId = process.env.xivelyDeliveryTargetDeviceId;
     }
     else
         console.log("Error code: " + e.code);
@@ -112,23 +115,32 @@ ttnClient.on('uplink', function (msg) {
 
   console.log("TTN message received: " + msg);
 
-  xivelyClient.publish('xi/blue/v1/' + xivelyAccountId + '/d/' + xivelyDeviceId + '/up', JSON.stringify(msg));
+  var targetDeviceId = xivelyDeliveryTargetDeviceId == "" ? xivelyDeviceId : xivelyDeliveryTargetDeviceId;
 
+  console.log("Forwarding to device: " + targetDeviceId);
+
+
+  xivelyClient.publish('xi/blue/v1/' + xivelyAccountId + '/d/' + targetDeviceId + '/payload', JSON.stringify(msg));
   
-  if (msg.fields.button != null) {
-    xivelyClient.publish('xi/blue/v1/' + xivelyAccountId + '/d/' + xivelyDeviceId + '/button', msg.fields.button.toString());
-  }
+  /*if (msg.fields.button != null) {
+    xivelyClient.publish('xi/blue/v1/' + xivelyAccountId + '/d/' + targetDeviceId + '/button', msg.fields.button.toString());
+  }*/
 
+  if (msg.fields.temperature != null) {
+    xivelyClient.publish('xi/blue/v1/' + xivelyAccountId + '/d/' + targetDeviceId + '/temperature', msg.fields.temperature.toString());
+  }
+  
   if (msg.fields.humidity != null) {
-    xivelyClient.publish('xi/blue/v1/' + xivelyAccountId + '/d/' + xivelyDeviceId + '/humidity', msg.fields.humidity.toString());
+    xivelyClient.publish('xi/blue/v1/' + xivelyAccountId + '/d/' + targetDeviceId + '/humidity', msg.fields.humidity.toString());
   }
 
   if (msg.fields.light != null) {
-    xivelyClient.publish('xi/blue/v1/' + xivelyAccountId + '/d/' + xivelyDeviceId + '/light', msg.fields.light.toString());
+    xivelyClient.publish('xi/blue/v1/' + xivelyAccountId + '/d/' + targetDeviceId + '/light', msg.fields.light.toString());
   }
 
-  if (msg.fields.temperature != null) {
-    xivelyClient.publish('xi/blue/v1/' + xivelyAccountId + '/d/' + xivelyDeviceId + '/temperature', msg.fields.temperature.toString());
+  if (msg.metadata.gateway_eui != null)
+  {
+    xivelyClient.publish('xi/blue/v1/' + xivelyAccountId + '/d/' + targetDeviceId + '/_log', msg.metadata.gateway_eui.toString());
   }
 	// respond to every third message
 	/*if (msg.counter % 3 === 0) {
