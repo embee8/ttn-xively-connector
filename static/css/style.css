@@ -1,0 +1,60 @@
+body {
+    padding-bottom: 50px;
+    font-size: 14px;
+}
+
+.navbar {
+    border-radius: 0;
+}
+
+.app, #newApp {
+    margin: 50px 0;
+    padding-left: 10px;
+    border-left: 3px solid #ff0000;
+}
+
+#newApp {
+    margin-top: 50px;
+}
+
+.devices {
+    margin-left: 30px;
+    margin-top: 30px;
+
+}
+
+.device, .newDevice {
+    margin-top: 20px;
+    border-left: 3px solid #22cc66;
+    padding-left: 10px;
+}
+
+.mappings {
+    margin-left: 30px;
+    margin-top: 40px;
+}
+
+.mapping, .newMapping {
+    margin-top: 20px;
+    padding-left: 10px;
+    border-left: 3px solid #2288ff;
+}
+
+h1, h2, h3 {
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+h2 {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+input {
+    max-width: 500px;
+}

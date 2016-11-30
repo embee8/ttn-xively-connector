@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <% include ../partials/head %>
+</head>
+
+<body>
+
+    <header>
+        <% include ../partials/navigation %>
+    </header>
+
+    <main>
+
+        <div class="container" style="margin-top:50px;">
+
+            <h1>XiLoRa - Connecting Xively to The Things Network</h1>
+            <img style="max-width: 700px;" src="img/project_logo.png" class="img-responsive" alt="Xively and The Things Network logo"
+            />
+
+
+            <h1>Architecture</h1>
+
+            <p>
+                This connector establishes connections to the specified TTN apps and to a single Xively account. Currently, only one way
+                communication from LoRa device to Xively is supported.
+            </p>
+
+
+            <h1>Notes</h1>
+
+            <p>
+                Devices and mappings can be created, deleted, and edited on-the-fly and will be processed by the connector immediately.
+            </p>
+
+            <p>
+                There are two scenarios in which a manual restart is required.
+            </p>
+
+            <ul>
+                <li>If a new TTN app is added</li>
+                <li>If the Xively connection parameters are changed.</li>
+            </ul>
+
+            <p>
+                For this purpose, use the red 'Restart' button on the Configuration
+                or Mappings page. There is no need to restart the whole application server.
+            </p>
+
+        </div>
+        <!--/.container -->
+
+    </main>
+
+    <footer>
+
+    </footer>
+</body>
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+    crossorigin="anonymous"></script>
+
+</html>
