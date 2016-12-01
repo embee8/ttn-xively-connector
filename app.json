@@ -34,6 +34,6 @@
         }
     ],
     "scripts": {
-        "postinstall": "npm run initdb"
+        "postdeploy": "npm run initdb"
     }
 }
