@@ -4,6 +4,7 @@ var ttn = require("ttn"); // TTN MQTT client
 var mqtt = require("mqtt"); // mqtt.js for Xively
 var fs = require("fs"); // file system
 var pg = require("pg"); // database
+var pgConnStringParser = require('pg-connection-string');
 
 var http = require("http");
 var https = require("https");
@@ -40,6 +41,7 @@ var xivelyIdPassword;
 // Connector credentials (can be set during the setup process)
 var CONNECTOR_USERNAME;
 var CONNECTOR_PASSWORD;
+var APP_DATABASE_URL;
 
 
 
@@ -51,8 +53,9 @@ try
 
   var envVars = JSON.parse(fs.readFileSync("config/config.json", "utf8"));
 
-  CONNECTOR_USERNAME = envVars.connectorUsername;
-  CONNECTOR_PASSWORD = envVars.connectorPassword;
+  CONNECTOR_USERNAME = envVars.CONNECTOR_USERNAME;
+  CONNECTOR_PASSWORD = envVars.CONNECTOR_PASSWORD;
+  APP_DATABASE_URL = envVars.APP_DATABASE_URL;
 }
 catch (e)
 {
@@ -60,8 +63,9 @@ catch (e)
   {
     log("Local config file not found, reading environment variables.");
 
-    CONNECTOR_USERNAME = process.env.connectorUsername;
-    CONNECTOR_PASSWORD = process.env.connectorPassword;
+    CONNECTOR_USERNAME = process.env.CONNECTOR_USERNAME;
+    CONNECTOR_PASSWORD = process.env.CONNECTOR_PASSWORD;
+    APP_DATABASE_URL = process.env.APP_DATABASE_URL;
   }
   else {
       log("Error code: " + e.code);
@@ -70,19 +74,19 @@ catch (e)
 
 
 
-// create a config to configure both pooling behavior
-// and client options
-// note: all config is optional and the environment variables
-// will be read if the config is not present
-var pgConfig = {
-  user: "postgres", //env var: PGUSER
-  database: "xilora", //env var: PGDATABASE
-  password: "xively", //env var: PGPASSWORD
-  port: 5432, //env var: PGPORT
-  max: 10, // max number of clients in the pool
-  idleTimeoutMillis: 30000 // how long a client is allowed to remain idle before being closed
-};
+/*
+  CREATE DATABASE CONFIGURATION
 
+  The environment (or config.json) contains a connection string.
+  we need to transform that to a config object, using the pg-connection-string parser
+*/
+var pgConfig = pgConnStringParser.parse(APP_DATABASE_URL);
+
+// In addition to the connection parameters, we set the max number of pool clients and timeout
+pgConfig.max = 20;
+pgConfig.idleTimeoutMillis = 30000;
+
+log("Connecting to the database using config: " + JSON.stringify(pgConfig));
 
 var TTN_CLIENTS = [];
 var XIVELY_CLIENT;
@@ -99,7 +103,7 @@ databaseClientPool.on('error', function (err, client) {
   // this is a rare occurrence but can happen if there is a network partition 
   // between your application and the database, the database restarts, etc. 
   // and so you might want to handle it and at least log it out 
-  log('idle client error', err.message, err.stack)
+  log('Database pool/client error', err.message, err.stack)
 })
 
 
