@@ -1,6 +1,6 @@
 {
     "name": "XiLoRa",
-    "description": "A app using Express 4",
+    "description": "Connecting Xively and The Things Network",
     "repository": "https://github.com/embee8/ttn-xively-connector",
     "keywords": [
         "node",
@@ -11,11 +11,11 @@
     ],
     "env": {
         "connectorUsername": {
-            "description": "Your TTN appEUI",
+            "description": "Your XiLoRa username",
             "required": true
         },
         "connectorPassword": {
-            "description": "Your TTN appEUI",
+            "description": "Your XiLoRa password",
             "required": true
         }
     },
