@@ -47,7 +47,7 @@ try {
         console.log("Running database script...");
         //console.log(sql);
 
-        /*client.query(sql, function(err, result) {
+        client.query(sql, function(err, result) {
             done();
             if(err){
                 console.log('Error: ', err);
@@ -55,7 +55,7 @@ try {
             }
             console.log("Database initialised!");
             process.exit(0);
-        });*/
+        });
     });
 }
 catch (e) {
