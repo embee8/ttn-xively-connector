@@ -10,25 +10,13 @@
         "xively"
     ],
     "env": {
-        "ttnAppEUI": {
+        "connectorUsername": {
             "description": "Your TTN appEUI",
-            "required": false
+            "required": true
         },
-        "ttnAccessKey": {
-            "description": "Your TTN access key",
-            "required": false
-        },
-        "xivelyDeviceId": {
-            "description": "The username / device ID of the paired Xively device",
-            "required": false
-        },
-        "xivelyPassword": {
-            "description": "The password of the paired Xively device",
-            "required": false
-        },
-        "xivelyDeliveryTargetDeviceId": {
-            "description": "The device to which messages are sent to",
-            "required": false
+        "connectorPassword": {
+            "description": "Your TTN appEUI",
+            "required": true
         }
     },
     "buildpacks": [
