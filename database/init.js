@@ -3,39 +3,51 @@
 var pg = require('pg');
 var fs = require('fs');
 var APP_DATABASE_URL;
+const path = require('path');
 
+
+// Get connection string from config file or environment variables
 try {
     console.log("Reading connection string...");
-    var envVars = JSON.parse(fs.readFileSync("config/config.json", "utf8"));
+
+    const configFilePath = path.join(__dirname, '../config', 'config.json');
+
+    var envVars = JSON.parse(fs.readFileSync(configFilePath, "utf8"));
     APP_DATABASE_URL = envVars.APP_DATABASE_URL;
 }
 catch (e) {
-    if (e.code === "ENOENT") {
-        console.log("Local config file not found, reading environment variables.");
-        APP_DATABASE_URL = process.env.APP_DATABASE_URL;
-    }
-    else {
-        console.log("Error code: " + e.code);
+
+    console.log("Didn't find local config file, reading environment variables.");
+
+
+    APP_DATABASE_URL = process.env.APP_DATABASE_URL;
+
+    if (APP_DATABASE_URL == null) {
+        console.log("Could not find a database connection string. Exiting and leaving job undone...");
+        process.exit(1);
     }
 }
 
 
+
+// We have a connection string at this point. Let's read the database script and execute it
 try {
+    console.log("Connecting to the database using connection string: " + APP_DATABASE_URL);
     console.log("Reading database script...");
 
-    const tableScript = path.join(__dirname, 'tables.sql')
+    const tableScript = path.join(__dirname, 'tables.sql');
+    var sql = fs.readFileSync(tableScript, "utf8");//.toString();
 
-    var sql = fs.readFileSync(tableScript, 'utf8');//.toString();
-    
     pg.connect(APP_DATABASE_URL, function (err, client, done) {
         if (err) {
             console.log('error: ', err);
             process.exit(1);
         }
-        
+
         console.log("Running database script...");
-        
-        client.query(sql, function(err, result) {
+        //console.log(sql);
+
+        /*client.query(sql, function(err, result) {
             done();
             if(err){
                 console.log('Error: ', err);
@@ -43,10 +55,10 @@ try {
             }
             console.log("Database initialised!");
             process.exit(0);
-        });
+        });*/
     });
 }
 catch (e) {
-    console.log("Couldn't find or read database script.");
+    console.log("Couldn't find or read database script. Exiting and leaving job undone...");
+    process.exit(1);
 }
-

@@ -10,7 +10,7 @@ var http = require("http");
 var https = require("https");
 var path = require("path");
 
-var xiapi = require("./xively-api");
+var xiapi = require("./app/xively"); // custom Xively library
 
 var express = require("express"); // server
 var expressSession = require('express-session');
