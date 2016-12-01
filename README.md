@@ -2,10 +2,12 @@
 A Node.js application that connects The Things Network and Xively.
 
 ## What it does
-This application is a MQTT bridge between the TTN and Xively brokers. Given that the two platforms are structured in a slightly different way, the application allows to model a mapping between devices and channels.
+In essence, XiLoRa is a bridge between the TTN and Xively MQTT brokers. Given that the two platforms are structured in a slightly different way, XiLoRa allows you to create your custom mapping between devices and channels.
 
 ## Deployment
-Clone the project to run it locally or use the provided Heroku button to deploy it in the cloud.
+Use the button below to deploy the application to Heroku. The Postgres add-on that will be installed alongside the Node.js application will be provisioned as a free `hobby-dev` instance [plan info](https://devcenter.heroku.com/articles/heroku-postgres-plans).
+
+You can also clone the project and run it locally with the command `node server.js`, but you need to make sure that the application database is running and accessible.   
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/embee8/ttn-xively-connector/tree/master)
 
