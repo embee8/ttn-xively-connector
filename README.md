@@ -12,6 +12,6 @@ You can also clone the project and run it locally with the command `node server.
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/embee8/ttn-xively-connector/tree/master)
 
 ## Configuration
-During the deployment process, the application username and password need to be set. These credentials can but don't have to be the same as the Xively credentials.
+During the deployment process, you will be asked to set an application username and password. You can use your Xively credentials for simplicity reasons, but to keep things safe it is suggested to use an extra set of credentials for XiLoRa only.
 
-All other connection settings (TTN App IDs and access keys, Xively connection paramenters, etc.) are configured within the application.
+All other connection settings (TTN App IDs and access keys, Xively connection parameters, etc.) are configured via the administrator interface.
