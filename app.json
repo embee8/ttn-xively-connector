@@ -19,11 +19,6 @@
             "required": true
         }
     },
-    "buildpacks": [
-        {
-            "url": "https://elements.heroku.com/buildpacks/heroku/heroku-buildpack-nodejs"
-        }
-    ],
     "addons": [
         {
             "plan": "heroku-postgresql:hobby-dev",
@@ -31,6 +26,11 @@
             "options": {
                 "version": "9.5"
             }
+        }
+    ],
+    "buildpacks": [
+        {
+            "url": "https://elements.heroku.com/buildpacks/heroku/heroku-buildpack-nodejs"
         }
     ]
 }
