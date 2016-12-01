@@ -10,11 +10,11 @@
         "xively"
     ],
     "env": {
-        "connectorUsername": {
+        "CONNECTOR_USERNAME": {
             "description": "Your XiLoRa username",
             "required": true
         },
-        "connectorPassword": {
+        "CONNECTOR_PASSWORD": {
             "description": "Your XiLoRa password",
             "required": true
         }
@@ -32,5 +32,8 @@
         {
             "url": "heroku/nodejs"
         }
-    ]
+    ],
+    "scripts": {
+        "postinstall": "node scripts/dbinit.js"
+    }
 }
