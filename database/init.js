@@ -23,7 +23,9 @@ catch (e) {
 try {
     console.log("Reading database script...");
 
-    var sql = fs.readFileSync('database/tables.sql').toString();
+    const tableScript = path.join(__dirname, 'tables.sql')
+
+    var sql = fs.readFileSync(tableScript, 'utf8');//.toString();
     
     pg.connect(APP_DATABASE_URL, function (err, client, done) {
         if (err) {
