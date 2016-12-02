@@ -41,3 +41,6 @@ jspm_packages
 
 # Visual Studio code debug information
 .vscode
+
+# Image folder used for Wiki content
+images
