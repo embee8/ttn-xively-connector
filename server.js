@@ -35,8 +35,11 @@ var xivelyAccountId;
 var xivelyIdUsername;
 var xivelyIdPassword;
 
-//var xivelyDeviceId;
-//var xivelyPassword;
+var xivelyIdentityApiEndpoint;
+var xivelyBlueprintApiEndpoint;
+
+var TTN_BROKER_URL;
+var TTN_BROKER_PORT;
 
 // Connector credentials (can be set during the setup process)
 var CONNECTOR_USERNAME;
@@ -275,6 +278,17 @@ app.get('/logout', function(req, res){
 });
 
 
+// DASHBOARD (GET)
+app.get('/dashboard', function(req, res) {
+  if (req.isAuthenticated()) {
+    res.render("pages/dashboard", { authenticated: true } );
+    //renderAdminView(req, res, "configuration.html");
+  }
+  else {
+    res.redirect('/login?fw=dashboard');
+  }
+});
+
 // CONFIGURATION (GET)
 app.get('/configuration', function(req, res) {
   if (req.isAuthenticated()) {
@@ -325,17 +339,19 @@ app.get("/api/settings", function(req, res) {
 });
 
 app.put("/api/settings", function(req, res) {
-  
-  var params = [];
-  //params.push(req.body.xi_broker_url, req.body.xi_broker_port, req.body.xi_account_id, req.body.conn_xi_device_id, req.body.conn_xi_device_pw);
-  params.push(req.body.xi_broker_url, req.body.xi_broker_port, req.body.xi_account_id, req.body.xi_id_username, req.body.xi_id_password);
 
   if (req.body.setting_id == null || req.body.setting_id == "" || req.body.setting_id == 0) {
 
-    log("Creating settings (Setting ID = " + req.body.setting_id + ", Xively broker URL = " + req.body.xi_broker_url + ", Xively broker port = " + req.body.xi_broker_port + ", Xively Account ID = " + req.body.xi_account_id + ", Xively username = " + req.body.xi_id_username + ", Xively PW = ***)");
+    // Looks like there is no setting in the database yet, let's create a new one
+
+    var params = [];
+    //params.push(req.body.xi_broker_url, req.body.xi_broker_port, req.body.xi_account_id, req.body.conn_xi_device_id, req.body.conn_xi_device_pw);
+    params.push(req.body.xi_broker_url, req.body.xi_broker_port, req.body.xi_api_endpoint_id, req.body.xi_api_endpoint_bp, req.body.xi_account_id, req.body.xi_id_username, req.body.xi_id_password, req.body.ttn_broker_url, req.body.ttn_broker_port);
+
+    log("Creating settings (Setting ID = " + req.body.setting_id + ", Xively broker URL = " + req.body.xi_broker_url + ", Xively broker port = " + req.body.xi_broker_port + ", Xively ID API = " + req.body.xi_api_endpoint_id + ", Xively BP API = " + req.body.xi_api_endpoint_bp + ", Xively Account ID = " + req.body.xi_account_id + ", Xively username = " + req.body.xi_id_username + ", Xively PW = ***, TTN broker URL = " + req.body.ttn_broker_url + ", TTN broker port = " + req.body.ttn_broker_port + ")");
 
     // This is the first time the settings are saved, let's create a new row
-    insertDb("INSERT INTO settings (xi_broker_url, xi_broker_port, xi_account_id, xi_id_username, xi_id_password) VALUES ($1, $2, $3, $4, $5)", params, function(err, result) {
+    insertDb("INSERT INTO settings (xi_broker_url, xi_broker_port, xi_api_endpoint_id, xi_api_endpoint_bp, xi_account_id, xi_id_username, xi_id_password, ttn_broker_url, ttn_broker_port) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)", params, function(err, result) {
       if (err) {
         log("Couldn't create new settings row: " + JSON.stringify(err));
         res.sendStatus(400);
@@ -347,10 +363,10 @@ app.put("/api/settings", function(req, res) {
 
   else {
 
-    log("Updating settings (Setting ID = " + req.body.setting_id + ", Xively broker URL = " + req.body.xi_broker_url + ", Xively broker port = " + req.body.xi_broker_port + ", Xively Account ID = " + req.body.xi_account_id + ", Xively username = " + req.body.xi_id_username + ", Xively PW = ***)");
+    log("Updating settings (Setting ID = " + req.body.setting_id + ", Xively broker URL = " + req.body.xi_broker_url + ", Xively broker port = " + req.body.xi_broker_port + ", Xively ID API = " + req.body.xi_api_endpoint_id + ", Xively BP API = " + req.body.xi_api_endpoint_bp + ", Xively Account ID = " + req.body.xi_account_id + ", Xively username = " + req.body.xi_id_username + ", Xively PW = ***, TTN broker URL = " + req.body.ttn_broker_url + ", TTN broker port = " + req.body.ttn_broker_port + ")");
 
     // We have some settings already, but we are going to update them
-    queryDb("UPDATE settings SET xi_broker_url = '" + req.body.xi_broker_url + "', xi_broker_port = " + req.body.xi_broker_port + ", xi_account_id = '" + req.body.xi_account_id + "', xi_id_username = '" + req.body.xi_id_username + "', xi_id_password = '" + req.body.xi_id_password + "' WHERE setting_id = " + req.body.setting_id, function (err, result) {
+    queryDb("UPDATE settings SET xi_broker_url = '" + req.body.xi_broker_url + "', xi_broker_port = " + req.body.xi_broker_port + ", xi_api_endpoint_id = '" + req.body.xi_api_endpoint_id + "', xi_api_endpoint_bp = '" + req.body.xi_api_endpoint_bp + "',xi_account_id = '" + req.body.xi_account_id + "', xi_id_username = '" + req.body.xi_id_username + "', xi_id_password = '" + req.body.xi_id_password + "', ttn_broker_url = '" + req.body.ttn_broker_url + "', ttn_broker_port = " + req.body.ttn_broker_port + " WHERE setting_id = " + req.body.setting_id, function (err, result) {
     
       if (err) {
         log("Couldn't update settings: " + JSON.stringify(err));
@@ -524,7 +540,7 @@ app.get("/api/mappings", function(req, res) {
 });
 
 app.put("/api/mappings", function(req, res) {
-  log("Creating new mapping (App EUI = " + req.body.app_eui + ", JSON source field = " + req.body.json_field + ", Xively topic = " + req.body.xi_topic + ", Time series = " + req.body.time_series + ", Category = " + req.body.category + ")");
+  log("Creating new data mapping (App EUI = " + req.body.app_eui + ", JSON source field = " + req.body.json_field + ", Xively topic = " + req.body.xi_topic + ", Time series = " + req.body.time_series + ", Category = " + req.body.category + ")");
   
   var params = [];
   params.push(req.body.app_eui, req.body.json_field, req.body.xi_topic, req.body.time_series, req.body.category);
@@ -609,6 +625,16 @@ app.listen(process.env.PORT || 8080, function(){
 
 
 
+
+
+
+
+
+
+
+
+
+
 /*
   START BRIDGING FUNCTION
 */
@@ -636,11 +662,16 @@ function readSettings() {
       xivelyIdUsername = settings.xi_id_username;
       xivelyIdPassword = settings.xi_id_password;
 
-      //xivelyDeviceId = settings.conn_xi_device_id;
-      //xivelyPassword = settings.conn_xi_device_pw;
+      xivelyIdentityApiEndpoint = settings.xi_api_endpoint_id;
+      xivelyBlueprintApiEndpoint = settings.xi_api_endpoint_bp;
 
-      // Initialise the Xively API module with the credentials that we received
-      xiapi.init(xivelyAccountId, xivelyIdUsername, xivelyIdPassword);
+      TTN_BROKER_URL = settings.ttn_broker_url;
+      TTN_BROKER_PORT = Number(settings.ttn_broker_port);
+
+      // Initialise the Xively API module
+      xiapi.init(xivelyAccountId, xivelyIdUsername, xivelyIdPassword, xivelyIdentityApiEndpoint, xivelyBlueprintApiEndpoint);
+
+      log("Trying to get a login JWT from Xively to connect to the broker...");
 
       xiapi.getJWT(startBridge);
       //startBridge();
@@ -739,7 +770,7 @@ function fetchTTNApps () {
         log("Connecting to app '" + app.name + "'");
 
         // Set up a new client
-        var newClient = new ttn.Client("staging.thethingsnetwork.org", app.app_eui, app.app_access_key);
+        var newClient = new ttn.Client(TTN_BROKER_URL, app.app_eui, app.app_access_key);
 
         newClient.on("activation", function (e) {
           console.log("A new device (" + e.devEUI + ") has registered with app '" + app.name + "'");

@@ -3,6 +3,10 @@ body {
     font-size: 14px;
 }
 
+main {
+    padding-top: 20px;
+}
+
 .navbar {
     border-radius: 0;
 }
@@ -56,6 +60,10 @@ h2 {
     font-weight: bold;
 }
 
-input {
+input, select {
     max-width: 500px;
+}
+
+hr {
+    margin-top: 10px;
 }

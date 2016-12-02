@@ -7,13 +7,19 @@ var ACCOUNT_ID;
 var USERNAME;
 var PASSWORD;
 
+var IDENTITY_API_ENDPOINT;
+var BLUEPRINT_API_ENDPOINT;
+
 // used for temporary storage
 var JWT;
 
-exports.init = function(accountId, username, password) {
+exports.init = function(accountId, username, password, identityApiEndpoint, blueprintApiEndpoint) {
     ACCOUNT_ID = accountId;
     USERNAME = username;
     PASSWORD = password;
+
+    IDENTITY_API_ENDPOINT = identityApiEndpoint;
+    BLUEPRINT_API_ENDPOINT = blueprintApiEndpoint;
 };
 
 exports.getJWT = function(callback) {
@@ -27,11 +33,11 @@ exports.getJWT = function(callback) {
 
     var jwtRequestDataString = JSON.stringify(jwtRequestData);
 
-    //console.log(jwtRequestDataString);
-    //console.log("Length = " + jwtRequestDataString.length);
+    //log(jwtRequestDataString);
+    //log("Length = " + jwtRequestDataString.length);
 
     var options = {
-        host: "id.xively.com",
+        host: IDENTITY_API_ENDPOINT,
         port: 443,
         path: '/api/v1/auth/login-user',
         method: 'POST',
@@ -44,6 +50,11 @@ exports.getJWT = function(callback) {
     // Set up the request
     var jwtRequest = https.request(options, function(res) {
 
+        if (res.statusCode.toString().charAt(0) == "4") {
+            // Error code
+            log("401 - Unauthorised");
+        }
+
         var data = "";
 
         // this event fires many times, each time collecting another piece of the response
@@ -55,13 +66,13 @@ exports.getJWT = function(callback) {
         // this event fires *one* time, after all the `data` events/chunks have been gathered
         res.on("end", function () {
             
-            //console.log("Response from the Xively Identity API: ");
+            //log("Response from the Xively Identity API: ");
 
             if (data != "") {
                 
                 try {
                     var jsonData = JSON.parse(data);
-                    //console.log(jsonData);
+                    //log(jsonData);
 
                     if (jsonData != null && jsonData.jwt != null) {
 
@@ -69,12 +80,12 @@ exports.getJWT = function(callback) {
                         callback(jsonData.jwt);
                     }
                 } catch(e) {
-                    console.log("Error: " + e.message);
+                    log("Error: " + e.message);
                 }
             }
             
             else {
-                console.log("User couldn't be logged in.")
+                log("User couldn't be logged in.")
             }
 
         });
@@ -82,7 +93,7 @@ exports.getJWT = function(callback) {
     });
 
     jwtRequest.on('error', (e) => {
-        console.error("Error during user login: " + e);
+        log("Error during user login: " + e);
     });
 
     // Send data to the API
@@ -108,11 +119,11 @@ exports.updateDeviceLocation = function(deviceId, longitude, latitude) {
 
     var jwtRequestDataString = JSON.stringify(jwtRequestData);
 
-    //console.log(jwtRequestDataString);
-    //console.log("Length = " + jwtRequestDataString.length);
+    //log(jwtRequestDataString);
+    //log("Length = " + jwtRequestDataString.length);
 
     var options = {
-        host: "id.xively.com",
+        host: IDENTITY_API_ENDPOINT,
         port: 443,
         path: '/api/v1/auth/login-user',
         method: 'POST',
@@ -136,7 +147,7 @@ exports.updateDeviceLocation = function(deviceId, longitude, latitude) {
         // this event fires *one* time, after all the `data` events/chunks have been gathered
         res.on("end", function () {
             
-            //console.log("Response from the Xively Identity API: ");
+            //log("Response from the Xively Identity API: ");
 
             if (data != "") {
                 
@@ -145,7 +156,7 @@ exports.updateDeviceLocation = function(deviceId, longitude, latitude) {
 
                     if (jsonData != null && jsonData.jwt != null) {
                         //JWT = jsonData.jwt;
-                        //console.log("User logged in, JWT = " + jsonData.jwt)
+                        //log("User logged in, JWT = " + jsonData.jwt)
 
                         // User logged in, let's update the device
                         //updateDevice(deviceId, latitude, longitude);
@@ -156,12 +167,12 @@ exports.updateDeviceLocation = function(deviceId, longitude, latitude) {
                         getDevice(deviceId, jsonData.jwt, latitude, longitude);
                     }
                 } catch(e) {
-                    console.log("Error: " + e.message);
+                    log("Error: " + e.message);
                 }
             }
             
             else {
-                console.log("User couldn't be logged in.")
+                log("User couldn't be logged in.")
             }
 
         });
@@ -169,7 +180,7 @@ exports.updateDeviceLocation = function(deviceId, longitude, latitude) {
     });
 
     jwtRequest.on('error', (e) => {
-        console.error("Error during user login: " + e);
+        log("Error during user login: " + e);
     });
 
     // Send data to the API
@@ -182,10 +193,10 @@ exports.updateDeviceLocation = function(deviceId, longitude, latitude) {
 
 function getDevice(deviceId, jwt, latitude, longitude) {
     
-    //console.log("Get latest device status...");
+    //log("Get latest device status...");
 
     var options = {
-        host: "blueprint.xively.com",
+        host: BLUEPRINT_API_ENDPOINT,
         //port: 443,
         path: '/api/v1/devices/' + deviceId,
         method: 'GET',
@@ -194,7 +205,7 @@ function getDevice(deviceId, jwt, latitude, longitude) {
         },
     };
 
-    //console.log(options);
+    //log(options);
 
     // Set up the request
     var request = https.request(options, function(res) {
@@ -210,17 +221,17 @@ function getDevice(deviceId, jwt, latitude, longitude) {
         // this event fires *one* time, after all the `data` events/chunks have been gathered
         res.on("end", function () {
             
-            //console.log("Response from the Xively Identity API: ");
+            //log("Response from the Xively Identity API: ");
 
-            //console.log(data);
+            //log(data);
 
             if (data != "") {
                 var jsonData = JSON.parse(data);
 
                 if (jsonData.device != null && jsonData.device.version) {
                     //JWT = jsonData.jwt;
-                    //console.log("Got the latest device state, version = " + jsonData.device.version)
-                    //console.log(this.headers.etag);
+                    //log("Got the latest device state, version = " + jsonData.device.version)
+                    //log(this.headers.etag);
 
                     updateDevice(deviceId, jwt, latitude, longitude, jsonData.device.version);
                     //updateDevice(deviceId, latitude, longitude, this.headers.etag);
@@ -228,7 +239,7 @@ function getDevice(deviceId, jwt, latitude, longitude) {
             }
             /*
             else {
-                console.log("User couldn't be logged in.")
+                log("User couldn't be logged in.")
             }*/
 
         });
@@ -236,7 +247,7 @@ function getDevice(deviceId, jwt, latitude, longitude) {
     });
 
     request.on('error', (e) => {
-        console.error("Error during updating device: " + e);
+        log("Error during updating device: " + e);
     });
 
     // Send data to the API
@@ -257,11 +268,11 @@ function updateDevice(deviceId, jwt, latitude, longitude, version) {
 
     var updateRequestDataString = JSON.stringify(updateRequestData);
 
-    //console.log(updateRequestDataString);
-    //console.log("Length = " + jwtRequestDataString.length);
+    //log(updateRequestDataString);
+    //log("Length = " + jwtRequestDataString.length);
     
     var updateOptions = {
-        host: "blueprint.xively.com",
+        host: BLUEPRINT_API_ENDPOINT,
         //port: 443,
         path: '/api/v1/devices/' + deviceId,
         method: 'PUT',
@@ -273,7 +284,7 @@ function updateDevice(deviceId, jwt, latitude, longitude, version) {
         },
     };
 
-    //console.log(updateOptions);
+    //log(updateOptions);
 
     // Set up the request
     var updateRequest = https.request(updateOptions, function(res) {
@@ -289,24 +300,24 @@ function updateDevice(deviceId, jwt, latitude, longitude, version) {
         // this event fires *one* time, after all the `data` events/chunks have been gathered
         res.on("end", function () {
             
-            //console.log("Response from the Xively Identity API: ");
+            //log("Response from the Xively Identity API: ");
 
             if (this.statusCode == 200) {
-                console.log("Device location updated successfully");
+                log("Device location updated successfully");
             }
             else {
-                console.log("Device location could not be updated");
+                log("Device location could not be updated");
             }
-            //console.log("Response to update request:");
-            //console.log(this.statusCode);
-            //console.log(data);
+            //log("Response to update request:");
+            //log(this.statusCode);
+            //log(data);
 
         });
 
     });
 
     updateRequest.on('error', (e) => {
-        console.error("Error during updating device location: " + e);
+        log("Error during updating device location: " + e);
     });
 
     // Send data to the API
@@ -314,4 +325,12 @@ function updateDevice(deviceId, jwt, latitude, longitude, version) {
 
     // End the request
     updateRequest.end();
+}
+
+function log(msg) {
+  var date = new Date();
+
+  var dateString = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + ('0'  + date.getMinutes()).slice(-2) + ":" + ('0'  + date.getSeconds()).slice(-2) + "." + ('00'  + date.getMilliseconds()).slice(-3);
+
+  console.log(dateString + ": " + msg);
 }

@@ -50,14 +50,16 @@ CREATE TABLE mappings (
 );
 
 CREATE TABLE settings (
-    conn_xi_device_id text,
-    conn_xi_device_pw text,
     setting_id bigint DEFAULT nextval('setting_id_sequence'::regclass) NOT NULL,
     xi_account_id text,
     xi_broker_url text,
     xi_broker_port integer,
     xi_id_username text,
-    xi_id_password text
+    xi_id_password text,
+    xi_api_endpoint_id text,
+    xi_api_endpoint_bp text,
+    ttn_broker_url text,
+    ttn_broker_port integer
 );
 
 CREATE TABLE ttn_apps (

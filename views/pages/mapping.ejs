@@ -11,17 +11,19 @@
             <% include ../partials/navigation %>
         </header>
 
-        <div class="container">
+        <main>
+            <div class="container">
 
-            <h1 style="margin-top: 30px;">Apps <small>TTN app = Xively device template</small> <small></h1>
-            <div id="apps">
+                <h1>Apps <small>TTN app = Xively device template</small> <small></h1>
+                <div id="apps">
 
-            </div>
+                </div>
+                
+                <!--<br>
+                <button id="restartService" class="btn btn-danger">Restart service</button>-->
 
-            <br>
-            <button id="restartService" class="btn btn-danger">Restart service</button>
-
-        </div> <!--/.container -->
+            </div> <!--/.container -->
+        </main>
     </body>
 
 
@@ -37,7 +39,7 @@
 
                         if (data.length == 0) {
                             $("#apps").append(
-                                '<div class="app"><i>No apps defined</i></div>'
+                                '<div class="app"><i>No TTN apps defined</i></div>'
                             );
                         }
                         else {
@@ -77,7 +79,7 @@
 
                         // Container for mappings
                         '<div class="mappings">' +
-                        '<h2>Mappings <small>Linking TTN JSON data to a Xively topic</small></h2>' +
+                        '<h2>Data <small>Linking TTN JSON data to a Xively topic</small></h2>' +
                         '</div>' +
 
                         '</div>'
@@ -268,7 +270,7 @@
                 var app_access_key = $("#formNewApp input[name=accesskey]").val();
 
                 if (name == "" || app_eui == "") {
-                    alert("App name and EUI cannot be empty!");
+                    alert("TTN App name and EUI cannot be empty!");
                     return;
                 }
 
@@ -441,7 +443,7 @@
                 var app_access_key = $("#formEditApp input[name=accesskey]").val();
 
                 if (name == "" || app_eui == "") {
-                    alert("App name and EUI cannot be empty!");
+                    alert("TTN App name and EUI cannot be empty!");
                     return;
                 }
 
@@ -694,20 +696,22 @@
                 <div class="modal-body">
                     
                         <div class="form-group">
-                            <label for="appname">App name</label>
+                            <label for="appname">TTN app name (arbitrary label)</label>
                             <input type="text" class="form-control" name="appname" id="appname" placeholder="Pick an arbitrary name that describes your app">
                         </div>
 
                         <div class="form-group">
-                            <label for="appeui">App EUI</label>
+                            <label for="appeui">TTN app EUI</label>
                         <input type="text" class="form-control" name="appeui" id="appeui" placeholder="Your unique TTN app identifier">
                         </div>
                         
 
                         <div class="form-group">
-                            <label for="accesskey">App access key</label>
+                            <label for="accesskey">TTN app access key</label>
                             <input type="text" class="form-control" name="accesskey" id="accesskey" placeholder="Your TTN app access key">
                         </div>
+
+                        <p>The EUI and access key are accessible in your TTN account.<br>Navigate to Applications > <i>Example App</i> > Getting your data</p>
                     
                 </div>
                 <div class="modal-footer">
@@ -732,23 +736,24 @@
                 <div class="modal-body">
                     
                         <div class="form-group">
-                            <label for="appname">App name</label>
+                            <label for="appname">TTN app name (arbitrary label)</label>
                             <input type="text" class="form-control" name="appname" val="" placeholder="Pick an arbitrary name that describes your app">
                         </div>
 
                         <div class="form-group">
-                            <label for="appeui">App EUI</label>
+                            <label for="appeui">TTN app EUI</label>
                         <input type="text" class="form-control" name="appeui" val="" placeholder="Your unique TTN app identifier">
                         </div>
                         
 
                         <div class="form-group">
-                            <label for="accesskey">App access key</label>
+                            <label for="accesskey">TTN app access key</label>
                             <input type="text" class="form-control" name="accesskey" val="" placeholder="Your TTN app access key">
                         </div>
 
                         <input type="hidden" name="appid" value="" />
                     
+                        <p>The EUI and access key are accessible in your TTN account.<br>Navigate to Applications > <i>Example App</i> > Getting your data</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -896,7 +901,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save mapping</button>
+                    <button type="submit" class="btn btn-primary">Save data mapping</button>
                 </div>
                 </div>
             </div>
