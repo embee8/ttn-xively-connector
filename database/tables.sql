@@ -126,4 +126,5 @@ ALTER TABLE ONLY ttn_devices
     ADD CONSTRAINT ttn_devices_app_eui_fkeyn FOREIGN KEY (app_eui) REFERENCES ttn_apps(app_eui) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
-
+-- DEFAULT SETTINGS
+INSERT INTO settings (xi_broker_url, xi_broker_port, xi_api_endpoint_id, xi_api_endpoint_bp) VALUES ('broker.xively.eu', 443, 'id.xively.eu', 'blueprint.xively.eu');
