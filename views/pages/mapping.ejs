@@ -34,7 +34,15 @@
             function loadApps() {
                 $.ajax("api/apps", {
                     success: function(data) {
-                        displayApps(data);
+
+                        if (data.length == 0) {
+                            $("#apps").append(
+                                '<div class="app"><i>No apps defined</i></div>'
+                            );
+                        }
+                        else {
+                            displayApps(data);
+                        }                        
 
                         // Add "New app" button
                         $("#apps").append(
