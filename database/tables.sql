@@ -1,6 +1,7 @@
 -- CLEANING UP
 
 DROP TABLE IF EXISTS firmware, application_config, rules, device_config, images;
+DROP SEQUENCE IF EXISTS app_id_sequence, devices_id_sequence, mapping_id_sequence, setting_id_sequence;
 
 SET default_with_oids = false;
 
