@@ -13,25 +13,39 @@
 
     <main>
 
-        <div class="container" style="margin-top:50px;">
+        <div class="container">
 
-            <h1>XiLoRa - Connecting Xively to The Things Network</h1>
+            <h1>XiLoRa - Connecting Xively and The Things Network</h1>
             <img style="max-width: 700px;" src="img/project_logo.png" class="img-responsive" alt="Xively and The Things Network logo"
             />
 
+            <br><br>
 
-            <h1>Architecture</h1>
+            <h1>Overview</h1>
+            
+            <p>The main elements of XiLoRa are:</p>
+
+            <ul>
+                <li><b>Dashboard</b> - XiLoRa service overview and controls</li>
+                <li><b>Configuration</b> - Configure the connections to Xively and The Things Network</li>
+                <li><b>Mapping</b> - Link Xively and TTN devices and define what data should be sychronised</li>
+            </ul>
+
+
+            <br><br>
+            <h1>Documentation</h1>
 
             <p>
-                This connector establishes connections to the specified TTN apps and to a single Xively account. Currently, only one way
-                communication from LoRa device to Xively is supported.
+                Please refer to the <a href="https://github.com/embee8/ttn-xively-connector" target="_blank">README</a> and <a href="https://github.com/embee8/ttn-xively-connector/wiki" target="_blank">Wiki</a> for detailed documentation and setup guides. 
             </p>
 
+
+            <br><br>
 
             <h1>Notes</h1>
 
             <p>
-                Devices and mappings can be created, deleted, and edited on-the-fly and will be processed by the connector immediately.
+                Devices and mappings can be created, edited, and deleted on-the-fly and will be processed by XiLoRa immediately.
             </p>
 
             <p>
@@ -40,12 +54,11 @@
 
             <ul>
                 <li>If a new TTN app is added</li>
-                <li>If the Xively connection parameters are changed.</li>
+                <li>If the Xively or TTN connection parameters are changed.</li>
             </ul>
 
             <p>
-                For this purpose, use the red 'Restart' button on the Configuration
-                or Mappings page. There is no need to restart the whole application server.
+                To restart the service, navigate to the <a href="/dashboard">Dashboard page</a> and click the 'Restart XiLoRa' button.
             </p>
 
         </div>
