@@ -104,7 +104,7 @@ exports.getJWT = function(callback) {
 }
 
 
-exports.updateDeviceLocation = function(deviceId, longitude, latitude) {
+exports.updateDeviceLocation = function(deviceId, latitude, longitude) {
 
     /*
         First, we have to log in the user

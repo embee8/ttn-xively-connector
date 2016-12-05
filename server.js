@@ -835,7 +835,7 @@ function handleMessage(msg) {
           xiapi.updateDeviceLocation(sourceDevice.xi_device_id, "47.500411", "19.0544093" );
         }
         else {
-          xiapi.updateDeviceLocation(sourceDevice.xi_device_id, msg.metadata.longitude, msg.metadata.latitude);
+          xiapi.updateDeviceLocation(sourceDevice.xi_device_id, msg.metadata.latitude, msg.metadata.longitude);
         }
         
       }
