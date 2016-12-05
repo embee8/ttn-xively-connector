@@ -14,7 +14,7 @@
         <main>
             <div class="container">
 
-                <h1>Apps <small>TTN app = Xively device template</small> <small></h1>
+                <h1>TTN apps / Xively device templates <!--<small>TTN app = Xively device template</small>--></h1>
                 <div id="apps">
 
                 </div>
@@ -39,12 +39,12 @@
 
                         if (data.length == 0) {
                             $("#apps").append(
-                                '<div class="app"><i>No TTN apps defined</i></div>'
+                                '<div class="app"><small><i>No TTN apps defined</i></small></div>'
                             );
                         }
                         else {
                             displayApps(data);
-                        }                        
+                        }
 
                         // Add "New app" button
                         $("#apps").append(
@@ -55,6 +55,7 @@
             };
 
             function displayApps(data) {
+
                 console.log("Received all apps");
 
                 for ( var i = 0; i < data.length; i++) {
@@ -64,23 +65,49 @@
                     // Insert node for app, and search all devices for this app
                     $("#apps").append(
                         '<div class="app" data-appid="' + app.app_id + '" data-appeui="' + app.app_eui + '" data-name="' + app.name + '" data-appaccesskey="'+ app.app_access_key +'">' +
-                        '<h1>' + app.name +
-                        '&nbsp;&nbsp;&nbsp;<button type="button" id="btnEditApp" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>' +
-                        '&nbsp;&nbsp;&nbsp;<button type="button" id="btnDeleteApp" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button></small>'+
-                        '</h1>' +
-                         
-                        '<div class="devices">' +
-                        '<h2>Devices <small>TTN device = Xively device instance</small></h2>' +
-                        //'<div class="device">' +
-                          //  '<h2>Devices</h2>' +
-                        //'</div>' +
+                            '<h1>' + app.name +
+                            '&nbsp;&nbsp;&nbsp;<button type="button" id="btnEditApp" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>' +
+                            '&nbsp;&nbsp;&nbsp;<button type="button" id="btnDeleteApp" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button></small>'+
+                            '</h1>' +
+                            
+                            '<div class="devices">' +
+                                '<h2>Devices <small>TTN device = Xively device instance</small></h2>' +
+                                //'<div class="device">' +
+                                //  '<h2>Devices</h2>' +
+                                //'</div>' +
+                                
+                                '<table class="table table-bordered table-striped">' +
+                                    '<thead>' +
+                                        '<tr>' +
+                                        '<th>Description</td>' +
+                                        '<th>TTN Device EUI</td>' +
+                                        '<th>Xively Device ID</td>' +
+                                        '<th>Actions</td>' +
+                                        '</tr>' +
+                                    '</thead>' +
+                                    '<tbody>' +
+                                    '</tbody>' +
+                                '</table>' +
 
-                        '</div>' +
+                            '</div>' +
 
-                        // Container for mappings
-                        '<div class="mappings">' +
-                        '<h2>Data <small>Linking TTN JSON data to a Xively topic</small></h2>' +
-                        '</div>' +
+                            // Container for mappings
+                            '<div class="mappings">' +
+                                '<h2>Data <small>Linking TTN JSON data to a Xively topic</small></h2>' +
+
+                                '<table class="table table-bordered table-striped">' +
+                                    '<thead>' +
+                                        '<tr>' +
+                                        '<th>TTN JSON field</td>' +
+                                        '<th>Target Xively channel</td>' +
+                                        '<th>Time series</td>' +
+                                        '<th>Actions</td>' +
+                                        '</tr>' +
+                                    '</thead>' +
+                                    '<tbody>' +
+                                    '</tbody>' +
+                                '</table>' +
+                            '</div>' +
 
                         '</div>'
                     );
@@ -93,6 +120,7 @@
 
                     // Fetch all devices for this app
                     $.ajax("api/devices", {
+
                         data: { "appeui" : app.app_eui },
                         success: function(data) {
 
@@ -102,7 +130,7 @@
 
                             if (data.length == 0) {
                                 $(".app[data-appeui=" + app_eui + "] .devices").append(
-                                    '<div class="device"><i>No devices defined</i></div>'
+                                    '<div class="device"><small><i>No devices defined</i></small></div>'
                                 );
                             }
                             else {
@@ -112,7 +140,7 @@
                             // Insert a "New device" button
                             //console.log("Inserting button for " + app_eui);
                             $(".app[data-appeui=" + app_eui + "] .devices").append(
-                                '<br><button type="button" id="btnNewDevice" class="btn btn-default btn-sm" data-appeui="' + app_eui + '">' +
+                                '<button type="button" id="btnNewDevice" class="btn btn-default btn-sm" data-appeui="' + app_eui + '">' +
                                 '<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New device</button>'
                             );
                         }
@@ -130,7 +158,7 @@
 
                             if (data.length == 0) {
                                 $(".app[data-appeui=" + app_eui + "] .mappings").append(
-                                    '<div class="mapping"><i>No mappings defined</i></div>'
+                                    '<div class="mapping"><small><i>No mappings defined</i></small></div>'
                                 );
                             }
                             else {
@@ -139,7 +167,7 @@
 
                             // Insert a "New mapping" button
                             $(".app[data-appeui=" + app_eui + "] .mappings").append(
-                                '<br><button type="button" id="btnNewMapping" class="btn btn-default btn-sm" data-appeui="' + app_eui + '">' +
+                                '<button type="button" id="btnNewMapping" class="btn btn-default btn-sm" data-appeui="' + app_eui + '">' +
                                     '<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New mapping</button>'
                             );
                         }
@@ -164,6 +192,10 @@
                     var name = ( device.device_name != null && device.device_name != "" ) ? device.device_name : "Unnamed device";
 
                     // Insert device node
+                    /*
+                    
+                    Old div-based view - replaced to increase space efficiency...
+
                     $(".app[data-appeui=" + device.app_eui + "] .devices").append(
                         '<div class="device" data-deviceid="' + device.device_id + '" data-deviceeui="' + device.device_eui + '" data-name="' + device.device_name + '" data-xivelydeviceid="' + device.xi_device_id + '">' +
                             '<b>' + name + '</b><small>' +
@@ -173,6 +205,27 @@
                             '&nbsp;&nbsp;&nbsp;<button type="button" id="btnDeleteDevice" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button></small>'+
                             
                         '</div>'
+                    );*/
+
+                    $(".app[data-appeui=" + device.app_eui + "] .devices table tbody").append(
+                        '<tr class="device" data-deviceid="' + device.device_id + '" data-deviceeui="' + device.device_eui + '" data-name="' + device.device_name + '" data-xivelydeviceid="' + device.xi_device_id + '">' +
+                            
+                            '<td>' + name + '</td>' +
+
+                            '<td>' + device.device_eui + '</td>' +
+
+                            '<td>' + device.xi_device_id + '</td>' +
+
+                            '<td>' +
+                            
+                            '<button type="button" id="btnEditDevice" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>' +
+
+                            '&nbsp;&nbsp;&nbsp;' +
+                            
+                            '<button type="button" id="btnDeleteDevice" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>' +
+                            
+                            '</td>' +
+                        '</tr>'
                     );
                     
                     // Now that we have displayed the devices, let's load the application mappings
@@ -216,15 +269,42 @@
                         timeSeriesText = 'Yes <span class="glyphicon glyphicon-signal" aria-hidden="true"></span>';
                     }
 
+                    /*
+                    
+                    Old div-based view. Replaced to increase space efficiency...
+                    
                     $(".app[data-appeui=" + mapping.app_eui + "] .mappings").append(
-                        '<div class="mapping" data-mapping="' + mapping.mapping_id + '" data-xivelytopic="' + mapping.xi_topic + '" data-jsonfield="' + mapping.json_field + '" data-timeseries="' + mapping.time_series + '" data-category="' + mapping.category + '">' +
+                        '<div class="mapping" data-mapping="' + mapping.mapping_id + '" data-xivelytopic="' + mapping.xi_topic + '" data-jsonfield="' + mapping.json_field + '" data-timeseries="' + mapping.time_series + '" data-category="' + mapping.category + '"><small>' +
                         'TTN JSON field: <b>' + mapping.json_field + '</b>' +
                         '<br>Target Xively topic: <b>' + mapping.xi_topic + "</b> " +
                         '<br>Time series: ' + timeSeriesText + 
                         '<br><button type="button" id="btnEditMapping" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>' +
                         '&nbsp;&nbsp;&nbsp;<button type="button" id="btnDeleteMapping" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button></small>'+
                         '</div>'
+                    );*/
+
+                    $(".app[data-appeui=" + mapping.app_eui + "] .mappings table tbody").append(
+
+                        '<tr class="mapping" data-mapping="' + mapping.mapping_id + '" data-xivelytopic="' + mapping.xi_topic + '" data-jsonfield="' + mapping.json_field + '" data-timeseries="' + mapping.time_series + '" data-category="' + mapping.category + '">' +
+                            
+                            '<td>' + mapping.json_field + '</td>' +
+
+                            '<td>' + mapping.xi_topic + '</td>' +
+
+                            '<td>' + timeSeriesText + '</td>' +
+
+                            '<td>' +
+                                
+                                '<button type="button" id="btnEditMapping" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>' +
+
+                                '&nbsp;&nbsp;&nbsp;' +
+                                
+                                '<button type="button" id="btnDeleteMapping" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>' +
+                            
+                            '</td>' +
+                        '</tr>'
                     );
+
                 }
             }
 
@@ -690,13 +770,13 @@
                 <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">New app</h4>
+                    <h4 class="modal-title" id="myModalLabel">New app / device template</h4>
                 </div>
                 
                 <div class="modal-body">
                     
                         <div class="form-group">
-                            <label for="appname">TTN app name (arbitrary label)</label>
+                            <label for="appname">Display name</label>
                             <input type="text" class="form-control" name="appname" id="appname" placeholder="Pick an arbitrary name that describes your app">
                         </div>
 
@@ -730,13 +810,13 @@
                 <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">Edit app</h4>
+                    <h4 class="modal-title" id="myModalLabel">Edit app / device template</h4>
                 </div>
                 
                 <div class="modal-body">
                     
                         <div class="form-group">
-                            <label for="appname">TTN app name (arbitrary label)</label>
+                            <label for="appname">Display name</label>
                             <input type="text" class="form-control" name="appname" val="" placeholder="Pick an arbitrary name that describes your app">
                         </div>
 
@@ -790,6 +870,11 @@
                 <div class="modal-body">
                     
                     <div class="form-group">
+                        <label for="devicename">Description</label>
+                        <input type="text" class="form-control" name="devicename" placeholder="e.g. living room sensor (optional)">
+                    </div>
+
+                    <div class="form-group">
                         <label for="deviceeui">TTN Device EUI</label>
                         <input type="text" class="form-control" name="deviceeui" placeholder="Unique TTN device identifier">
                     </div>
@@ -797,11 +882,6 @@
                     <div class="form-group">
                         <label for="deviceeui">Xively Device ID</label>
                         <input type="text" class="form-control" name="xivelydeviceid" placeholder="Unique Xively device identifier">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="devicename">Name</label>
-                        <input type="text" class="form-control" name="devicename" placeholder="e.g. living room sensor (optional)">
                     </div>
 
                     <input type="hidden" name="appeui" value="" />
@@ -828,6 +908,11 @@
                 <div class="modal-body">
                     
                     <div class="form-group">
+                        <label for="devicename">Description</label>
+                        <input type="text" class="form-control" name="devicename" placeholder="e.g. living room sensor (optional)">
+                    </div>
+
+                    <div class="form-group">
                         <label for="deviceeui">TTN Device EUI</label>
                         <input type="text" class="form-control" name="deviceeui" id="deviceuid" placeholder="Unique TTN device identifier">
                     </div>
@@ -835,12 +920,7 @@
                     <div class="form-group">
                         <label for="deviceeui">Xively Device ID</label>
                         <input type="text" class="form-control" name="xivelydeviceid" placeholder="Unique Xively device identifier">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="devicename">Name</label>
-                        <input type="text" class="form-control" name="devicename" placeholder="e.g. living room sensor (optional)">
-                    </div>
+                    </div>            
 
                     <input type="hidden" name="deviceid" value="" />
    

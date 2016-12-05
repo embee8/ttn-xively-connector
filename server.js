@@ -830,7 +830,14 @@ function handleMessage(msg) {
         log("Updating device location...");
         log("Requesting JWT for Xively API");
 
-        xiapi.updateDeviceLocation(sourceDevice.xi_device_id, msg.metadata.longitude, msg.metadata.latitude);
+        // temporary (unclean) configuration, using LMI Budapest location instead of null values
+        if ( msg.metadata.longitude == "" || msg.metadata.longitude == 0 || msg.metadata.latitude == "" || msg.metadata.latitude == 0) {
+          xiapi.updateDeviceLocation(sourceDevice.xi_device_id, "47.500411", "19.0544093" );
+        }
+        else {
+          xiapi.updateDeviceLocation(sourceDevice.xi_device_id, msg.metadata.longitude, msg.metadata.latitude);
+        }
+        
       }
     }
 
