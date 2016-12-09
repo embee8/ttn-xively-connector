@@ -979,7 +979,7 @@ function queryDb(query, callback, params) {
       return console.error("Error fetching database client from pool", err);
     }
 
-    console.log("Running query: " + query + ", Params: " + params);
+    //console.log("Running query: " + query + ", Params: " + params);
 
     client.query(query, params, function(err, result) {
       //call `done()` to release the client back to the pool
