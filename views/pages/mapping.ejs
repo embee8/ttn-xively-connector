@@ -128,9 +128,14 @@
 
                             var app_eui = this.url.split("appeui=")[1];
 
-                            if (data.length == 0) {
-                                $(".app[data-appeui=" + app_eui + "] .devices").append(
-                                    '<div class="device"><small><i>No devices defined</i></small></div>'
+                            if (data.length == 0) {   
+                                $(".app[data-appeui=" + app_eui + "] .devices table tbody").append(
+                                    '<tr class="device">' +    
+                                        '<td><small><i>No devices defined</i></small></td>' +
+                                        '<td></td>' +
+                                        '<td></td>' +
+                                        '<td></td>' +
+                                    '</tr>'
                                 );
                             }
                             else {
@@ -157,8 +162,13 @@
                             var app_eui = this.url.split("appeui=")[1];
 
                             if (data.length == 0) {
-                                $(".app[data-appeui=" + app_eui + "] .mappings").append(
-                                    '<div class="mapping"><small><i>No mappings defined</i></small></div>'
+                                $(".app[data-appeui=" + app_eui + "] .mappings table tbody").append(
+                                    '<tr class="mapping">' +    
+                                        '<td><small><i>No data mappings defined</i></small></td>' +
+                                        '<td></td>' +
+                                        '<td></td>' +
+                                        '<td></td>' +
+                                    '</tr>'
                                 );
                             }
                             else {
@@ -966,7 +976,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="category">Category</label>
+                        <label for="category">Category (only used for time series values)</label>
                         <input type="text" class="form-control" name="category" placeholder="Optional field for time series values (for analysis purposes)">
                     </div>
 
@@ -1010,7 +1020,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="category">Category</label>
+                        <label for="category">Category (only used for time series values)</label>
                         <input type="text" class="form-control" name="category" placeholder="Optional field for time series values (for analysis purposes)">
                     </div>
 

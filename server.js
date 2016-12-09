@@ -322,6 +322,7 @@ app.get('/mapping', function(req, res) {
 */
 
 app.get("/api/settings", function(req, res) {
+
   queryDb("SELECT * FROM settings ORDER BY setting_id ASC", function(err, results) {
     if (results.rowCount == 0) {
       res.json({});
@@ -340,25 +341,24 @@ app.get("/api/settings", function(req, res) {
 
 app.put("/api/settings", function(req, res) {
 
+  var params = [];
+  params.push(req.body.xi_broker_url, req.body.xi_broker_port, req.body.xi_api_endpoint_id, req.body.xi_api_endpoint_bp, req.body.xi_account_id, req.body.xi_id_username, req.body.xi_id_password, req.body.ttn_broker_url, req.body.ttn_broker_port, req.body.setting_id);
+
   if (req.body.setting_id == null || req.body.setting_id == "" || req.body.setting_id == 0) {
 
     // Looks like there is no setting in the database yet, let's create a new one
 
-    var params = [];
-    //params.push(req.body.xi_broker_url, req.body.xi_broker_port, req.body.xi_account_id, req.body.conn_xi_device_id, req.body.conn_xi_device_pw);
-    params.push(req.body.xi_broker_url, req.body.xi_broker_port, req.body.xi_api_endpoint_id, req.body.xi_api_endpoint_bp, req.body.xi_account_id, req.body.xi_id_username, req.body.xi_id_password, req.body.ttn_broker_url, req.body.ttn_broker_port);
-
     log("Creating settings (Setting ID = " + req.body.setting_id + ", Xively broker URL = " + req.body.xi_broker_url + ", Xively broker port = " + req.body.xi_broker_port + ", Xively ID API = " + req.body.xi_api_endpoint_id + ", Xively BP API = " + req.body.xi_api_endpoint_bp + ", Xively Account ID = " + req.body.xi_account_id + ", Xively username = " + req.body.xi_id_username + ", Xively PW = ***, TTN broker URL = " + req.body.ttn_broker_url + ", TTN broker port = " + req.body.ttn_broker_port + ")");
 
     // This is the first time the settings are saved, let's create a new row
-    insertDb("INSERT INTO settings (xi_broker_url, xi_broker_port, xi_api_endpoint_id, xi_api_endpoint_bp, xi_account_id, xi_id_username, xi_id_password, ttn_broker_url, ttn_broker_port) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)", params, function(err, result) {
+    queryDb("INSERT INTO settings (xi_broker_url, xi_broker_port, xi_api_endpoint_id, xi_api_endpoint_bp, xi_account_id, xi_id_username, xi_id_password, ttn_broker_url, ttn_broker_port) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)", function(err, result) {
       if (err) {
         log("Couldn't create new settings row: " + JSON.stringify(err));
         res.sendStatus(400);
       } else {
         res.sendStatus(200);
       }
-    });
+    }, params);
   }
 
   else {
@@ -366,7 +366,7 @@ app.put("/api/settings", function(req, res) {
     log("Updating settings (Setting ID = " + req.body.setting_id + ", Xively broker URL = " + req.body.xi_broker_url + ", Xively broker port = " + req.body.xi_broker_port + ", Xively ID API = " + req.body.xi_api_endpoint_id + ", Xively BP API = " + req.body.xi_api_endpoint_bp + ", Xively Account ID = " + req.body.xi_account_id + ", Xively username = " + req.body.xi_id_username + ", Xively PW = ***, TTN broker URL = " + req.body.ttn_broker_url + ", TTN broker port = " + req.body.ttn_broker_port + ")");
 
     // We have some settings already, but we are going to update them
-    queryDb("UPDATE settings SET xi_broker_url = '" + req.body.xi_broker_url + "', xi_broker_port = " + req.body.xi_broker_port + ", xi_api_endpoint_id = '" + req.body.xi_api_endpoint_id + "', xi_api_endpoint_bp = '" + req.body.xi_api_endpoint_bp + "',xi_account_id = '" + req.body.xi_account_id + "', xi_id_username = '" + req.body.xi_id_username + "', xi_id_password = '" + req.body.xi_id_password + "', ttn_broker_url = '" + req.body.ttn_broker_url + "', ttn_broker_port = " + req.body.ttn_broker_port + " WHERE setting_id = " + req.body.setting_id, function (err, result) {
+    queryDb("UPDATE settings SET xi_broker_url = $1, xi_broker_port = $2, xi_api_endpoint_id = $3, xi_api_endpoint_bp = $4 ,xi_account_id = $5, xi_id_username = $6, xi_id_password = $7, ttn_broker_url = $8, ttn_broker_port = $9 WHERE setting_id = $10", function (err, result) {
     
       if (err) {
         log("Couldn't update settings: " + JSON.stringify(err));
@@ -375,7 +375,7 @@ app.put("/api/settings", function(req, res) {
       } else {
         res.sendStatus(200);
       }
-    });
+    }, params);
 
   }
 
@@ -394,12 +394,13 @@ app.get("/api/apps", function(req, res) {
 });
 
 app.put("/api/apps", function(req, res) {
+
   log("Creating new app (Name = " + req.body.name + ", App EUI = " + req.body.app_eui + ", Access Key = " + req.body.app_access_key + ")");
   
   var params = [];
   params.push(req.body.name, req.body.app_eui, req.body.app_access_key);
 
-  insertDb("INSERT INTO ttn_apps (name, app_eui, app_access_key) VALUES ($1, $2, $3)", params, insertCallback);
+  queryDb("INSERT INTO ttn_apps (name, app_eui, app_access_key) VALUES ($1, $2, $3)", insertCallback, params);
 
   function insertCallback(err, result) {
         
@@ -416,7 +417,10 @@ app.put("/api/apps", function(req, res) {
 app.put("/api/apps/update", function(req, res) {
   log("Updating app (ID = " + req.body.app_id + ", Name = " + req.body.name + ", App EUI = " + req.body.app_eui + ", Access Key = " + req.body.app_access_key + ")");
   
-  queryDb("UPDATE ttn_apps SET app_eui = '" + req.body.app_eui + "', name = '" + req.body.name + "', app_access_key = '" + req.body.app_access_key + "' WHERE app_id = " + req.body.app_id,
+  var params = [];
+  params.push(req.body.app_eui, req.body.name, req.body.app_access_key, req.body.app_id.toString());
+
+  queryDb("UPDATE ttn_apps SET app_eui = $1, name = $2, app_access_key = $3 WHERE app_id = $4",
     function (err, result) {
     
     if (err) {
@@ -426,14 +430,17 @@ app.put("/api/apps/update", function(req, res) {
     } else {
       res.sendStatus(200);
     }
-  });
+  }, params);
 });
 
 app.delete("/api/apps/", function(req, res) {
   
   log("Deleting app (ID = " + req.body.appid + ")");
+
+  var params = [];
+  params.push(req.body.appid);
   
-  queryDb("DELETE FROM ttn_apps WHERE app_id = '" + req.body.appid+ "'", function(err, result) {
+  queryDb("DELETE FROM ttn_apps WHERE app_id = $1", function(err, result) {
   
     if (err) {
       log("Couldn't delete app: " + JSON.stringify(err));
@@ -442,7 +449,7 @@ app.delete("/api/apps/", function(req, res) {
     } else {
       res.sendStatus(200);
     }
-  });
+  }, params);
 });
 
 
@@ -461,25 +468,31 @@ app.get("/api/devices", function(req, res) {
     res.status(400).send("Bad Request");
   }
   else {
-    queryDb("SELECT * FROM ttn_devices WHERE app_eui = '" + req.query.appeui +  "' ORDER BY device_id ASC", function(err, results) {
+
+    var params = [];
+    params.push(req.query.appeui);
+
+
+    queryDb("SELECT * FROM ttn_devices WHERE app_eui = $1 ORDER BY device_id ASC", function(err, results) {
       var result = {
         app_eui: req.query.appeui
         //devices: JSON.parse(results.rows)
       };
 
       res.json(results.rows);
-    });
+    }, params);
   }
 });
 
 
 app.put("/api/devices", function(req, res) {
+
   log("Creating new device (Dev EUI = " + req.body.device_eui + ", Xively Device ID = " + req.body.xi_device_id  + ", App EUI = " + req.body.app_eui + ", Device name = " + req.body.device_name + ")");
   
   var params = [];
   params.push(req.body.device_eui, req.body.xi_device_id, req.body.app_eui, req.body.device_name);
 
-  insertDb("INSERT INTO ttn_devices (device_eui, xi_device_id, app_eui, device_name) VALUES ($1, $2, $3, $4)", params, insertCallback);
+  queryDb("INSERT INTO ttn_devices (device_eui, xi_device_id, app_eui, device_name) VALUES ($1, $2, $3, $4)", insertCallback, params);
 
   function insertCallback(err, result) {
     
@@ -493,10 +506,15 @@ app.put("/api/devices", function(req, res) {
   }
 });
 
+
 app.put("/api/devices/update", function(req, res) {
+
   log("Updating device (ID = " + req.body.device_id + ", Dev EUI = " + req.body.device_eui + ", Xively Device ID = " + req.body.xi_device_id  + ", Device name = " + req.body.device_name + ")");
   
-  queryDb("UPDATE ttn_devices SET device_eui = '" + req.body.device_eui + "', xi_device_id = '" + req.body.xi_device_id + "', device_name = '" + req.body.device_name + "' WHERE device_id = '" + req.body.device_id + "'",
+  var params = [];
+  params.push(req.body.device_eui, req.body.xi_device_id, req.body.device_name, req.body.device_id);
+
+  queryDb("UPDATE ttn_devices SET device_eui = $1, xi_device_id = $2, device_name = $3 WHERE device_id = $4",
     function (err, result) {
     
     if (err) {
@@ -506,14 +524,18 @@ app.put("/api/devices/update", function(req, res) {
     } else {
       res.sendStatus(200);
     }
-  });
+  }, params);
 });
+
 
 app.delete("/api/devices/", function(req, res) {
   
   log("Deleting device (ID = " + req.body.device_id + ")");
   
-  queryDb("DELETE FROM ttn_devices WHERE device_id = '" + req.body.device_id + "'", function(err, result) {
+  var params = [];
+  params.push(req.body.device_id);
+
+  queryDb("DELETE FROM ttn_devices WHERE device_id = $1", function(err, result) {
   
     if (err) {
       log("Couldn't delete device: " + JSON.stringify(err));
@@ -522,7 +544,7 @@ app.delete("/api/devices/", function(req, res) {
     } else {
       res.sendStatus(200);
     }
-  });
+  }, params);
 });
 
 
@@ -534,18 +556,24 @@ app.delete("/api/devices/", function(req, res) {
 */
 
 app.get("/api/mappings", function(req, res) {
-  queryDb("SELECT * FROM mappings WHERE app_eui = '" + req.query.appeui + "' ORDER BY mapping_id ASC", function(err, results) {
+
+  var params = [];
+  params.push(req.query.appeui);
+
+  queryDb("SELECT * FROM mappings WHERE app_eui = $1 ORDER BY mapping_id ASC", function(err, results) {
     res.json(results.rows);
-  });
+  }, params);
 });
 
+
 app.put("/api/mappings", function(req, res) {
+  
   log("Creating new data mapping (App EUI = " + req.body.app_eui + ", JSON source field = " + req.body.json_field + ", Xively topic = " + req.body.xi_topic + ", Time series = " + req.body.time_series + ", Category = " + req.body.category + ")");
   
   var params = [];
   params.push(req.body.app_eui, req.body.json_field, req.body.xi_topic, req.body.time_series, req.body.category);
 
-  insertDb("INSERT INTO mappings (app_eui, json_field, xi_topic, time_series, category) VALUES ($1, $2, $3, $4, $5)", params, insertCallback);
+  queryDb("INSERT INTO mappings (app_eui, json_field, xi_topic, time_series, category) VALUES ($1, $2, $3, $4, $5)", insertCallback, params);
 
   function insertCallback(err, result) {
     
@@ -559,10 +587,15 @@ app.put("/api/mappings", function(req, res) {
   }
 });
 
+
 app.put("/api/mappings/update", function(req, res) {
+
   log("Updating mapping (ID = " + req.body.mapping_id + ", JSON source field = " + req.body.json_field + ", Xively topic = " + req.body.xi_topic + ", Time series = " + req.body.time_series + ", Category = " + req.body.category + ")");
   
-  queryDb("UPDATE mappings SET json_field = '" + req.body.json_field + "', xi_topic = '" + req.body.xi_topic + "', time_series = '" + req.body.time_series + "', category = '" + req.body.category + "' WHERE mapping_id = '" + req.body.mapping_id + "'",
+  var params = [];
+  params.push(req.body.json_field, req.body.xi_topic, req.body.time_series, req.body.category, req.body.mapping_id);
+
+  queryDb("UPDATE mappings SET json_field = $1, xi_topic = $2, time_series = $3, category = $4 WHERE mapping_id = $5",
   
     function (err, result) {
       
@@ -573,14 +606,18 @@ app.put("/api/mappings/update", function(req, res) {
       } else {
         res.sendStatus(200);
       }
-    });
+    }, params);
 });
+
 
 app.delete("/api/mappings/", function(req, res) {
   
   log("Deleting mapping (ID = " + req.body.mapping_id + ")");
   
-  queryDb("DELETE FROM mappings WHERE mapping_id = '" + req.body.mapping_id + "'", function(err, result) {
+  var params = [];
+  params.push(req.body.mapping_id);
+
+  queryDb("DELETE FROM mappings WHERE mapping_id = $1", function(err, result) {
   
     if (err) {
       log("Couldn't delete mapping: " + JSON.stringify(err));
@@ -589,7 +626,7 @@ app.delete("/api/mappings/", function(req, res) {
     } else {
       res.sendStatus(200);
     }
-  });
+  }, params);
 });
 
 
@@ -934,15 +971,17 @@ function disconnectFromAllApps() {
 */
 
 // Executes a query on the database, using a client from the pool
-function queryDb(query, callback) {
+function queryDb(query, callback, params) {
 
   databaseClientPool.connect(function(err, client, done) {
 
     if(err) {
       return console.error("Error fetching database client from pool", err);
     }
-    //console.log("Running query: " + query);
-    client.query(query, function(err, result) {
+
+    console.log("Running query: " + query + ", Params: " + params);
+
+    client.query(query, params, function(err, result) {
       //call `done()` to release the client back to the pool
       done();
 
@@ -957,32 +996,6 @@ function queryDb(query, callback) {
     });
   });
 }
-
-// Executes a query on the database, taking a params object for insert queries, using a client from the pool
-function insertDb(query, params, callback) {
-
-  databaseClientPool.connect(function(err, client, done) {
-
-    if(err) {
-      return console.error("Error fetching database client from pool", err);
-    }
-    //console.log("Running query: " + query);
-    client.query(query, params, function(err, result) {
-      //call `done()` to release the client back to the pool
-      done();
-
-      if(err) {
-        //return console.error("Error running query", err);
-      }
-
-      // Return result object: https://github.com/brianc/node-postgres/wiki/Query#result-object
-      //console.log(result);
-      callback(err, result);
-      //return result;
-    });
-  });
-}
-
 
 
 function log(msg) {
