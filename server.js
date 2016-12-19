@@ -862,7 +862,7 @@ function handleMessage(msg) {
       // Let's check the application mappings to see what data we have to extract from the message and send to Xively
       queryDb("SELECT * FROM mappings WHERE app_eui = '" + sourceDevice.app_eui + "'", sendToXively);
 
-      if (msg.metadata.longitude != null && msg.metadata.latitude != null) {
+      if (msg.metadata != null && msg.metadata.longitude != null && msg.metadata.latitude != null) {
         // We handled all mappings, let's update the location of the device as well
         log("Updating device location...");
         log("Requesting JWT for Xively API");
