@@ -809,24 +809,34 @@ function fetchTTNApps () {
         // Set up a new client
         var newClient = new ttn.Client(TTN_BROKER_URL, app.app_eui, app.app_access_key);
 
-        newClient.on("activation", function (e) {
-          console.log("A new device (" + e.devEUI + ") has registered with app '" + app.name + "'");
+        newClient.on("connect", function (connack) {
+          log("Connected to app '" + app.name + "'. CONNACK: " + connack);
         });
 
-        newClient.on("connect", function () {
-          log("Connected to app '" + app.name + "'");
-        });
-      
         newClient.on("error", function (err) {
         	//log("Connection to '" + app.name + "' failed.", err.message); // app.name not in the correct scope anymore
           log("Connection to one TTN app failed: " + err.message); // app.name not in the correct scope anymore
           this.end();
         });
 
-        newClient.on("uplink", function (msg) {
+        /*newClient.on("uplink", function (msg) {
           //log("'" + app.name + "' received a message.");
           handleMessage(msg);
           //console.info("[INFO] ", "Uplink: " + JSON.stringify(msg, null, 2));
+        });*/
+
+        newClient.on("message", function (deviceId, data) {
+          //log("'" + app.name + "' received a message.");
+          handleMessage(deviceId, data);
+          //console.info("[INFO] ", "Uplink: " + JSON.stringify(msg, null, 2));
+        });
+
+        newClient.on("activation", function (deviceId, data) {
+          log("A new device (ID=" + deviceId + ") has registered with app '" + app.name + "' (EUI=" + data.app_eui + ")");
+        });
+
+        newClient.on("device", event, function (deviceId, data) {
+          log("Event " + event + " was published from device '" + deviceId + "'");
         });
 
         // Add it to the global client pool
@@ -837,10 +847,11 @@ function fetchTTNApps () {
 
 }
 
-function handleMessage(msg) {
+function handleMessage(deviceId, msg) {
 
   // We received a message. Let's see what device it came from
-  var deviceEUI = msg.devEUI;
+  //var deviceEUI = msg.devEUI;
+  var deviceEUI = deviceId;
 
   log("Received a message from device '" + deviceEUI + "'");
   log(JSON.stringify(msg, null, 2));
@@ -862,7 +873,7 @@ function handleMessage(msg) {
       // Let's check the application mappings to see what data we have to extract from the message and send to Xively
       queryDb("SELECT * FROM mappings WHERE app_eui = '" + sourceDevice.app_eui + "'", sendToXively);
 
-      // If a location is provided, update the device's location on Xively
+      // If a location is provided, update the device's location on Xively with the location of the first listed gateway
       if (msg.metadata != null && msg.metadata.gateways != null && msg.metadata.gateways[0] != null && msg.metadata.gateways[0].longitude != null && msg.metadata.gateways[0].latitude != null) {
         // We handled all mappings, let's update the location of the device as well
         log("Updating device location...");
@@ -902,7 +913,7 @@ function handleMessage(msg) {
 
           log("Found mapping for device: " + mapping.json_field + " -> " + mapping.xi_topic);
 
-          // Try to get payload
+          // Try to get payload fields JSON
           var payload = msg["payload_fields"][mapping.json_field];
 
           if (payload != null) {
