@@ -862,18 +862,22 @@ function handleMessage(msg) {
       // Let's check the application mappings to see what data we have to extract from the message and send to Xively
       queryDb("SELECT * FROM mappings WHERE app_eui = '" + sourceDevice.app_eui + "'", sendToXively);
 
-      if (msg.metadata != null && msg.metadata.longitude != null && msg.metadata.latitude != null) {
+      // If a location is provided, update the device's location on Xively
+      if (msg.metadata != null && msg.metadata.gateways != null && msg.metadata.gateways[0] != null && msg.metadata.gateways[0].longitude != null && msg.metadata.gateways[0].latitude != null) {
         // We handled all mappings, let's update the location of the device as well
         log("Updating device location...");
         log("Requesting JWT for Xively API");
 
-        // temporary (unclean) configuration, using LMI Budapest location instead of null values
+        xiapi.updateDeviceLocation(sourceDevice.xi_device_id, msg.metadata.gateways[0].latitude, msg.metadata.gateways[0].longitude);
+
+        /*
+        // Using LMI Budapest location instead of null values
         if ( msg.metadata.longitude == "" || msg.metadata.longitude == 0 || msg.metadata.latitude == "" || msg.metadata.latitude == 0) {
           xiapi.updateDeviceLocation(sourceDevice.xi_device_id, "47.500411", "19.0544093" );
         }
         else {
           xiapi.updateDeviceLocation(sourceDevice.xi_device_id, msg.metadata.latitude, msg.metadata.longitude);
-        }
+        }*/
         
       }
     }
@@ -899,11 +903,11 @@ function handleMessage(msg) {
           log("Found mapping for device: " + mapping.json_field + " -> " + mapping.xi_topic);
 
           // Try to get payload
-          var payload = msg["fields"][mapping.json_field];
+          var payload = msg["payload_fields"][mapping.json_field];
 
           if (payload != null) {
 
-            log("Mapped field was found in the payload. Bridging to Xively...");
+            log("Mapped field was found in the payload fields. Bridging to Xively...");
 
             var topicPath = "xi/blue/v1/" + xivelyAccountId + "/d/" + sourceDevice.xi_device_id + "/" + mapping.xi_topic;
 
@@ -930,7 +934,7 @@ function handleMessage(msg) {
 
           }
           else {
-            log("Field was not found in the payload, skipping the current mapping.");
+            log("Field was not found in the payload fields, skipping the current mapping.");
           }
           
         }
