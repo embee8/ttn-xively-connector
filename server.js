@@ -929,7 +929,12 @@ function handleMessage(deviceId, msg) {
               
               var date = new Date();
               var category = mapping.category != null ? mapping.category : "";
-              var timeseriesPayload = date.toISOString() + "," + category + "," + payload;
+              
+              // ISO date format
+              //var timeseriesPayload = date.toISOString() + "," + category + "," + payload;
+
+              // Timestamp date format
+              var timeseriesPayload = date.getTime() + "," + category + "," + payload + ",";
 
               XIVELY_CLIENT.publish(topicPath, timeseriesPayload);
 
