@@ -827,8 +827,10 @@ function fetchTTNApps () {
 
         newClient.on("message", function (deviceId, data) {
           //log("'" + app.name + "' received a message.");
+          log("Received a message from device '" + deviceId + "'");
+          log(JSON.stringify(data, null, 2));
+
           handleMessage(deviceId, data);
-          //console.info("[INFO] ", "Uplink: " + JSON.stringify(msg, null, 2));
         });
 
         newClient.on("activation", function (deviceId, data) {
@@ -852,9 +854,6 @@ function handleMessage(deviceId, msg) {
   // We received a message. Let's see what device it came from
   //var deviceEUI = msg.devEUI;
   var deviceEUI = deviceId;
-
-  log("Received a message from device '" + deviceEUI + "'");
-  log(JSON.stringify(msg, null, 2));
 
   // First, we need to check whether the device is registered in our connector
   queryDb("SELECT * FROM ttn_devices WHERE device_eui = '" + deviceEUI + "'", checkMatchingDevices);
