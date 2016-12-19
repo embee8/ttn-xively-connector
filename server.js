@@ -837,7 +837,7 @@ function fetchTTNApps () {
           log("A new device (ID=" + deviceId + ") has registered with app '" + app.name + "' (EUI=" + data.app_eui + ")");
         });
 
-        newClient.on("device", event, function (deviceId, data) {
+        newClient.on("device", "activation", function (deviceId, data) {
           log("Event " + event + " was published from device '" + deviceId + "'");
         });
 
