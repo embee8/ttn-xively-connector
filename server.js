@@ -861,11 +861,12 @@ function handleSigfoxUplinkMessage(body) {
   if (XIVELY_CLIENT != null) {
     try {
       if (body.temperature != null) {
+        log("Trying to send: " + body.temperature);
         XIVELY_CLIENT.publish("xi/blue/v1/dc92460c-544d-4f29-aba0-98c8bea362e4/d/afea5343-d2ea-4629-9f7d-17fc40a3c9c4/temperature", body.temperature);
       }
     }
     catch(e) {
-      log("Error while forwarding Sigfox message to Xively.");
+      log("Error while forwarding Sigfox message to Xively: " + e);
     }
   }  
 }
