@@ -811,11 +811,12 @@ function fetchTTNApps () {
           log("Connected to app '" + app.name + "'. CONNACK: " + connack);
         });
 
-        newClient.on("error", function (err) {
+        newClient.on("error", function(err) {
         	//log("Connection to '" + app.name + "' failed.", err.message); // app.name not in the correct scope anymore
           log("Connection to one TTN app failed: " + err.message); // app.name not in the correct scope anymore
+          log("Ending connection attempt.");
           this.end();
-        });
+        }.bind(newClient));
 
         /*newClient.on("uplink", function (msg) {
           //log("'" + app.name + "' received a message.");
@@ -861,8 +862,11 @@ function handleSigfoxUplinkMessage(body) {
   if (XIVELY_CLIENT != null) {
     try {
       if (body.temperature != null) {
-        log("Trying to send: " + body.temperature);
-        XIVELY_CLIENT.publish("xi/blue/v1/dc92460c-544d-4f29-aba0-98c8bea362e4/d/afea5343-d2ea-4629-9f7d-17fc40a3c9c4/temperature", body.temperature);
+        log("Trying to send: " + body.temperature.toString());
+
+        var topicPath = "xi/blue/v1/dc92460c-544d-4f29-aba0-98c8bea362e4/d/afea5343-d2ea-4629-9f7d-17fc40a3c9c4/temperature";
+
+        XIVELY_CLIENT.publish(topicPath, body.temperature.toString());
       }
     }
     catch(e) {
