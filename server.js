@@ -316,7 +316,6 @@ app.get('/mapping', function(req, res) {
 
 
 
-
 /*
   SETTINGS API
 */
@@ -768,12 +767,11 @@ function startBridge(jwt) {
   XIVELY_CLIENT.on("error", function (error) {
     log("An error with the Xively client occured: " + error);
   });
-  
+
   // Load TTN apps
   fetchTTNApps();
 
 }
-
 
 function fetchTTNApps () {
   
@@ -847,6 +845,19 @@ function fetchTTNApps () {
     }
   }
 
+}
+
+// Establish a route for Sigfox callbacks
+app.post('/sigfox/uplink', function(req, res) {
+  handleSigfoxUplinkMessage(req.body);
+  res.sendStatus(200);
+});
+
+function handleSigfoxUplinkMessage(body) {
+  log("Sigfox message received...");
+  log(body);
+
+  //XIVELY_CLIENT.publish(topicPath, timeseriesPayload);
 }
 
 function handleMessage(deviceId, msg) {
