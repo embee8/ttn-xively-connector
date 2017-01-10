@@ -850,6 +850,7 @@ function fetchTTNApps () {
 // Establish a route for Sigfox callbacks
 app.post('/sigfox/uplink', function(req, res) {
   handleSigfoxUplinkMessage(req.body);
+  log(JSON.stringify(req.body));
   res.sendStatus(200);
 });
 
@@ -857,7 +858,14 @@ function handleSigfoxUplinkMessage(body) {
   log("Sigfox message received...");
   log(body);
 
-  //XIVELY_CLIENT.publish(topicPath, timeseriesPayload);
+  if (XIVELY_CLIENT != null) {
+    try {
+      //XIVELY_CLIENT.publish(topicPath, timeseriesPayload);  
+    }
+    catch(e) {
+      log("Error while forwarding Sigfox message to Xively.");
+    }
+  }  
 }
 
 function handleMessage(deviceId, msg) {
