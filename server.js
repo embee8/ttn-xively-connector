@@ -848,33 +848,6 @@ function fetchTTNApps () {
 
 }
 
-// Establish a route for Sigfox callbacks
-app.post('/sigfox/uplink', function(req, res) {
-  handleSigfoxUplinkMessage(req.body);
-  log(JSON.stringify(req.body));
-  res.sendStatus(200);
-});
-
-function handleSigfoxUplinkMessage(body) {
-  log("Sigfox message received...");
-  log(body);
-
-  if (XIVELY_CLIENT != null) {
-    try {
-      if (body.temperature != null) {
-        log("Trying to send: " + body.temperature.toString());
-
-        var topicPath = "xi/blue/v1/dc92460c-544d-4f29-aba0-98c8bea362e4/d/afea5343-d2ea-4629-9f7d-17fc40a3c9c4/temperature";
-
-        XIVELY_CLIENT.publish(topicPath, body.temperature.toString());
-      }
-    }
-    catch(e) {
-      log("Error while forwarding Sigfox message to Xively: " + e);
-    }
-  }  
-}
-
 function handleMessage(deviceId, msg) {
 
   // We received a message. Let's see what device it came from
